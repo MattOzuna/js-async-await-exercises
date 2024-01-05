@@ -6,14 +6,38 @@ class Numbers{
     }
 
     async getFact(num) {
-        let response = await axios.get(`${this.baseURL}/${num}`)
-        return response.data
+        let response = await axios.get(`${this.baseURL}/${num}?json`)
+        return response.data.text
         
     }
     
     async getMultipleFacts(arr){
         let response = await axios.get(`${this.baseURL}/${arr}`)
         return response.data
+    }
+
+    async addFact(container){
+        const fact = await this.getFact(this.favNum)
+        this.addFactToPage(fact, container)
+    }
+
+    async addFourFavNumFacts(container){
+        let facts = await Promise.all([
+            this.getFact(this.favNum),
+            this.getFact(this.favNum),
+            this.getFact(this.favNum),
+            this.getFact(this.favNum)
+        ])
+    
+        facts.forEach(fact => this.addFactToPage(fact, container))
+    }
+
+    async addFourRandomFacts(container){
+        const arr = this.randomNumbers()
+        const facts = await this.getMultipleFacts(arr)
+        for (let key in facts){
+            this.addFactToPage(facts[key], container)
+        }
     }
 
     addFactToPage(fact, container) {
@@ -33,36 +57,12 @@ const myNum = new Numbers(2)
 
 //============================================== #1 ===========================================================//
 
-const fact = async function() {
-    const fact = await myNum.getFact(myNum.favNum)
-    myNum.addFactToPage(fact, 1)
-}
-fact()
+myNum.addFact(1)
 
 //============================================== #2 ===========================================================//
 
-const fourRandomFacts = async function() {
-    const arr = myNum.randomNumbers()
-    const facts = await myNum.getMultipleFacts(arr)
-    for (let key in facts){
-        myNum.addFactToPage(facts[key], 2)
-    }
-}
-fourRandomFacts()
+myNum.addFourRandomFacts(2)
 
 //============================================== #3 ===========================================================//
 
-const fourFacts = async function() {
-    let facts = await Promise.all([
-        myNum.getFact(myNum.favNum),
-        myNum.getFact(myNum.favNum),
-        myNum.getFact(myNum.favNum),
-        myNum.getFact(myNum.favNum)
-    ])
-    
-    for (let fact of facts){
-        myNum.addFactToPage(fact, 3)
-    }
-}
-
-fourFacts()
+myNum.addFourFavNumFacts(3)
